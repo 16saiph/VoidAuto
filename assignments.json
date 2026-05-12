@@ -1,0 +1,79 @@
+{
+  "maths": [
+    {
+      "id": "maths-1",
+      "title": "Algebra practice set",
+      "subject": "Maths",
+      "status": "undone",
+      "questions": [
+        "Solve 2x + 5 = 17.",
+        "Factorise x^2 - 9.",
+        "Evaluate 3(2x - 4) for x = 5."
+      ]
+    },
+    {
+      "id": "maths-2",
+      "title": "Fraction challenge",
+      "subject": "Maths",
+      "status": "undone",
+      "questions": [
+        "Simplify 4/6 + 2/3.",
+        "Convert 7/8 to a decimal."
+      ]
+    },
+    {
+      "id": "maths-3",
+      "title": "Geometry revision",
+      "subject": "Maths",
+      "status": "undone",
+      "questions": [
+        "Find the area of a triangle with base 8cm and height 5cm.",
+        "Name the type of triangle with sides 5, 5, 8."
+      ]
+    }
+  ],
+  "science": [
+    {
+      "id": "science-1",
+      "title": "Forces and motion",
+      "subject": "Science",
+      "status": "undone",
+      "questions": [
+        "Describe what friction does.",
+        "What is the unit of force?"
+      ]
+    },
+    {
+      "id": "science-2",
+      "title": "Energy forms",
+      "subject": "Science",
+      "status": "undone",
+      "questions": [
+        "List three different forms of energy.",
+        "Explain how sound is produced."
+      ]
+    }
+  ],
+  "reader": [
+    {
+      "id": "reader-1",
+      "title": "Reading comprehension",
+      "subject": "Reader",
+      "status": "undone",
+      "questions": [
+        "Summarise the main idea of the text.",
+        "What was the character’s main problem?"
+      ]
+    },
+    {
+      "id": "reader-2",
+      "title": "Vocabulary builder",
+      "subject": "Reader",
+      "status": "undone",
+      "questions": [
+        "Match the word to the definition.",
+        "Use the word 'adapt' in a sentence."
+      ]
+    }
+  ]
+}

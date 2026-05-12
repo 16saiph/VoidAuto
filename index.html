@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AutoSparx Dashboard</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="app-container">
+      <aside class="sidebar">
+        <div class="sidebar-header">
+          <h3>AutoSparx</h3>
+        </div>
+        <nav class="sidebar-nav">
+          <button class="nav-btn active" data-page="dashboard">
+            <span class="nav-icon">📊</span>
+            <span class="nav-label">Dashboard</span>
+          </button>
+          <button class="nav-btn" data-page="updates">
+            <span class="nav-icon">📝</span>
+            <span class="nav-label">Updates</span>
+          </button>
+        </nav>
+        <div class="sidebar-footer">
+          <a href="https://discord.gg/EKfdvt9eZg" target="_blank" rel="noopener" class="discord-btn" title="Join Discord community">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M20.317 4.368a19.91 19.91 0 00-4.885-1.515.074.074 0 00-.079.037c-.211.375-.445.864-.607 1.25a18.364 18.364 0 00-5.487 0c-.163-.386-.401-.875-.612-1.25a.077.077 0 00-.079-.036 19.897 19.897 0 00-4.885 1.515.07.07 0 00-.033.031c-3.112 4.652-3.966 9.195-3.548 13.677a.08.08 0 00.031.055 19.98 19.98 0 006.038 3.047.074.074 0 00.081-.027c.464-.637.878-1.31 1.232-2.016a.074.074 0 00-.041-.103 13.201 13.201 0 01-1.881-.9.075.075 0 00-.009-.125c.126-.094.252-.192.372-.291a.075.075 0 01.078-.01c3.928 1.793 8.18 1.793 12.062 0a.075.075 0 01.079.009c.12.099.246.197.373.291a.075.075 0 00-.008.125c-.598.35-1.225.664-1.882.9a.074.074 0 00-.041.103c.36.706.77 1.38 1.232 2.015a.074.074 0 00.081.028 19.992 19.992 0 006.043-3.047.074.074 0 00.031-.055c.504-4.772-.848-8.913-3.593-13.677a.06.06 0 00-.033-.03zM8.684 11.9c-1.106 0-2.018-.995-2.018-2.214 0-1.22.912-2.214 2.018-2.214 1.11 0 2.018.994 2.018 2.214 0 1.22-.908 2.214-2.018 2.214zm6.644 0c-1.11 0-2.018-.995-2.018-2.214 0-1.22.908-2.214 2.018-2.214 1.106 0 2.018.994 2.018 2.214 0 1.22-.912 2.214-2.018 2.214z"></path>
+            </svg>
+          </a>
+        </div>
+      </aside>
+
+      <div class="app-shell">
+        <header class="topbar">
+          <div>
+            <h1>AutoSparx Dashboard</h1>
+            <p>Session-only Sparx homework scanner and task assistant.</p>
+          </div>
+        </header>
+
+        <main class="main-grid" id="dashboard-page">
+        <section class="card login-card">
+          <div class="card-header">
+            <h2>School account login</h2>
+            <span class="badge">Session-only</span>
+          </div>
+          <p class="muted">
+            Enter your school, username, and password once. This page keeps your password in memory only and does not save it on the website.
+          </p>
+          <form id="login-form">
+            <label>
+              School name
+              <input type="text" id="school" placeholder="Enter school name" autocomplete="organization" required />
+            </label>
+
+            <label>
+              Username
+              <input type="text" id="username" placeholder="Sparx username" autocomplete="username" required />
+            </label>
+
+            <label>
+              Password
+              <input type="password" id="password" placeholder="Sparx password" autocomplete="current-password" required />
+            </label>
+
+            <div class="service-grid">
+              <label class="service-checkbox">
+                <input type="checkbox" name="service" value="maths" checked />
+                <span>Sparx Maths</span>
+              </label>
+              <label class="service-checkbox">
+                <input type="checkbox" name="service" value="science" checked />
+                <span>Sparx Science</span>
+              </label>
+              <label class="service-checkbox">
+                <input type="checkbox" name="service" value="reader" checked />
+                <span>Sparx Reader</span>
+              </label>
+            </div>
+
+            <button type="submit" class="primary-btn">Connect & scan homework</button>
+          </form>
+          <p class="footnote">Note: This prototype is designed for secure use in Codespaces and browser-based environments.</p>
+        </section>
+
+        <section class="card status-card hidden" id="results-section">
+          <div class="card-header">
+            <h2>Homework scan results</h2>
+            <span id="status-badge" class="badge badge-green">Ready</span>
+          </div>
+
+          <div class="summary-grid">
+            <div class="summary-item">
+              <span class="summary-label">Total tasks</span>
+              <strong id="total-tasks">0</strong>
+            </div>
+            <div class="summary-item">
+              <span class="summary-label">Done</span>
+              <strong id="done-tasks">0</strong>
+            </div>
+            <div class="summary-item">
+              <span class="summary-label">Completion</span>
+              <strong id="completion-percent">0%</strong>
+            </div>
+          </div>
+
+          <div class="progress-panel" id="progress-panel">
+            <p class="muted">Progress and login route information will appear here after scanning.</p>
+          </div>
+
+          <div class="results-list" id="assignment-list"></div>
+          <div class="actions-row">
+            <button id="refresh-btn" class="secondary-btn">Rescan</button>
+            <button id="reset-btn" class="secondary-btn">Start new session</button>
+          </div>
+        </section>
+
+        <section class="card detail-card hidden" id="detail-section">
+          <div class="card-header">
+            <h2>Selected homework</h2>
+            <span id="selected-title">Choose one assignment</span>
+          </div>
+          <div class="details-panel" id="question-panel">
+            <p class="muted">Pick a homework task from the list to see the questions and work inside this dashboard.</p>
+          </div>
+          <div class="pdf-actions">
+            <button id="complete-btn" class="primary-btn hidden">Complete selected homework</button>
+            <a id="pdf-download-link" class="secondary-btn hidden" target="_blank" rel="noopener">Download completed PDF</a>
+          </div>
+        </section>
+
+        <section class="card settings-card" id="settings-section">
+          <div class="card-header">
+            <h2>Dashboard settings</h2>
+            <span class="badge">Customise experience</span>
+          </div>
+          <div class="settings-grid">
+            <div class="setting-block">
+              <label for="theme-select">Theme palette</label>
+              <select id="theme-select"></select>
+              <p id="theme-info" class="muted">Choose from 15 midnight colour combinations.</p>
+            </div>
+            <div class="setting-block">
+              <label for="wallpaper-select">Wallpaper</label>
+              <select id="wallpaper-select"></select>
+              <p id="wallpaper-info" class="muted">Pick a dark-style wallpaper for the background.</p>
+            </div>
+            <div class="setting-block">
+              <label for="language-select">Language</label>
+              <select id="language-select"></select>
+              <p id="language-info" class="muted">Change interface language instantly.</p>
+            </div>
+          </div>
+        </section>
+        </main>
+        <main class="main-grid hidden" id="updates-page">
+          <section class="card updates-card">
+            <div class="card-header">
+              <h2>Update Log</h2>
+              <span class="badge badge-green">Latest</span>
+            </div>
+            <div class="updates-list" id="updates-list"></div>
+          </section>
+        </main>
+      </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" integrity="sha512-Ya5Lz5NjHKotWswmaAdWyrLfaB2Lhr5MWQ2gkcG3+oPdc3vSgSNgmZh5qsM1qquXl463TxEhUREy1DZhQHQdpQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="script.js"></script>
+  </body>
+</html>
