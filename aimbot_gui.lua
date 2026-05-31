@@ -1,6 +1,6 @@
 -- VoidAuto Aimbot GUI by MaxGoneBed
 -- Compatible with Delta Executor
--- Features: Toggle, FOV Changer, Show FOV, Team Check, Wall Check, FPS Boost, Mobile Friendly
+-- Features: Toggle, FOV Changer, Show FOV, Team Check, Wall Check, FPS Boost, Mobile Friendly, Body Part Selection
 
 local UserInputService = game:GetService("UserInputService")
 local RunService = game:GetService("RunService")
@@ -16,6 +16,7 @@ local Config = {
     TeamCheck = true,
     WallCheck = true,
     FPSBoost = false,
+    TargetBodyPart = "Head", -- "Head" or "Torso"
     Dragging = false,
     DragStart = Vector2.new(0, 0),
     Offset = Vector2.new(0, 0)
@@ -41,8 +42,8 @@ screenGui.Parent = LocalPlayer:WaitForChild("PlayerGui")
 -- Main frame with modern design
 local mainFrame = Instance.new("Frame")
 mainFrame.Name = "MainFrame"
-mainFrame.Size = UDim2.new(0, 280, 0, 320)
-mainFrame.Position = UDim2.new(0.5, -140, 0.5, -160)
+mainFrame.Size = UDim2.new(0, 280, 0, 380)
+mainFrame.Position = UDim2.new(0.5, -140, 0.5, -190)
 mainFrame.BackgroundColor3 = Color3.fromRGB(25, 25, 35)
 mainFrame.BorderSizePixel = 0
 mainFrame.ClipsDescendants = true
@@ -112,7 +113,7 @@ contentFrame.Parent = mainFrame
 local scrollFrame = Instance.new("ScrollingFrame")
 scrollFrame.Name = "ScrollFrame"
 scrollFrame.Size = UDim2.new(1, 0, 1, 0)
-scrollFrame.CanvasSize = UDim2.new(0, 0, 0, 400)
+scrollFrame.CanvasSize = UDim2.new(0, 0, 0, 500)
 scrollFrame.BackgroundTransparency = 1
 scrollFrame.BorderSizePixel = 0
 scrollFrame.ScrollBarThickness = 5
@@ -288,6 +289,77 @@ local function CreateSlider(name, min, max, default, callback)
     return sliderContainer
 end
 
+-- Create button group (for body part selection)
+local function CreateButtonGroup(name, options, defaultValue, callback)
+    local groupContainer = Instance.new("Frame")
+    groupContainer.Name = name
+    groupContainer.Size = UDim2.new(1, 0, 0, 70)
+    groupContainer.BackgroundTransparency = 1
+    groupContainer.Parent = scrollFrame
+    
+    local label = Instance.new("TextLabel")
+    label.Name = "Label"
+    label.Size = UDim2.new(1, -20, 0, 25)
+    label.Position = UDim2.new(0, 10, 0, 0)
+    label.BackgroundTransparency = 1
+    label.TextColor3 = Color3.fromRGB(200, 200, 220)
+    label.TextSize = 14
+    label.Font = Enum.Font.GothamBold
+    label.Text = name
+    label.TextXAlignment = Enum.TextXAlignment.Left
+    label.Parent = groupContainer
+    
+    local buttonContainer = Instance.new("Frame")
+    buttonContainer.Name = "ButtonContainer"
+    buttonContainer.Size = UDim2.new(1, -20, 0, 35)
+    buttonContainer.Position = UDim2.new(0, 10, 0, 30)
+    buttonContainer.BackgroundTransparency = 1
+    buttonContainer.Parent = groupContainer
+    
+    local buttonLayout = Instance.new("UIListLayout")
+    buttonLayout.FillDirection = Enum.FillDirection.Horizontal
+    buttonLayout.Padding = UDim.new(0, 8)
+    buttonLayout.HorizontalAlignment = Enum.HorizontalAlignment.SpaceBetween
+    buttonLayout.Parent = buttonContainer
+    
+    local currentValue = defaultValue
+    local buttons = {}
+    
+    for _, option in ipairs(options) do
+        local button = Instance.new("TextButton")
+        button.Name = option
+        button.Size = UDim2.new(0.47, 0, 1, 0)
+        button.BackgroundColor3 = (option == defaultValue) and Color3.fromRGB(100, 200, 100) or Color3.fromRGB(60, 60, 80)
+        button.TextColor3 = Color3.fromRGB(200, 200, 220)
+        button.TextSize = 12
+        button.Font = Enum.Font.GothamBold
+        button.Text = option
+        button.BorderSizePixel = 0
+        button.Parent = buttonContainer
+        
+        local buttonCorner = Instance.new("UICorner")
+        buttonCorner.CornerRadius = UDim.new(0, 10)
+        buttonCorner.Parent = button
+        
+        buttons[option] = button
+        
+        button.MouseButton1Click:Connect(function()
+            if currentValue ~= option then
+                -- Reset previous button
+                buttons[currentValue].BackgroundColor3 = Color3.fromRGB(60, 60, 80)
+                
+                -- Highlight new button
+                button.BackgroundColor3 = Color3.fromRGB(100, 200, 100)
+                currentValue = option
+                callback(option)
+                PlayNotification()
+            end
+        end)
+    end
+    
+    return groupContainer
+end
+
 -- Create toggles
 local _, getAimbotEnabled = CreateToggle("🎯 Aimbot Toggle", false, function(state)
     Config.AimbotEnabled = state
@@ -316,6 +388,11 @@ local _, getFPSBoost = CreateToggle("⚙️ FPS Boost", false, function(state)
             end
         end
     end
+end)
+
+-- Create body part selector
+CreateButtonGroup("💀 Target Body Part", {"Head", "Torso"}, "Head", function(value)
+    Config.TargetBodyPart = value
 end)
 
 -- Create FOV slider
@@ -360,7 +437,7 @@ collapseBtn.MouseButton1Click:Connect(function()
         collapseBtn.Text = "+"
     else
         scrollFrame.Visible = true
-        mainFrame.Size = UDim2.new(0, 280, 0, 320)
+        mainFrame.Size = UDim2.new(0, 280, 0, 380)
         collapseBtn.Text = "−"
     end
     PlayNotification()
@@ -392,20 +469,21 @@ local function GetClosestTarget()
         if player == LocalPlayer then continue end
         if not player.Character then continue end
         
-        local targetHead = player.Character:FindFirstChild("Head")
-        if not targetHead then continue end
+        -- Get target body part
+        local targetPart = player.Character:FindFirstChild(Config.TargetBodyPart)
+        if not targetPart then continue end
         
         -- Team check
         if Config.TeamCheck and player.Team == LocalPlayer.Team then continue end
         
         -- Calculate distance to screen center
-        local screenPos = Camera:WorldToScreenPoint(targetHead.Position)
+        local screenPos = Camera:WorldToScreenPoint(targetPart.Position)
         local distance = (Vector2.new(screenPos.X, screenPos.Y) - Vector2.new(Camera.ViewportSize.X / 2, Camera.ViewportSize.Y / 2)).Magnitude
         
         -- Wall check (raycasting)
         if Config.WallCheck then
             local rayOrigin = Camera.CFrame.Position
-            local rayDirection = (targetHead.Position - rayOrigin).Unit * 1000
+            local rayDirection = (targetPart.Position - rayOrigin).Unit * 1000
             local raycastParams = RaycastParams.new()
             raycastParams.FilterType = Enum.RaycastFilterType.Blacklist
             raycastParams.FilterDescendantsInstances = {LocalPlayer.Character}
@@ -418,7 +496,7 @@ local function GetClosestTarget()
         
         if distance < closestDistance then
             closestDistance = distance
-            closest = targetHead
+            closest = targetPart
         end
     end
     
@@ -442,3 +520,4 @@ PlayNotification()
 
 -- Made by MaxGoneBed
 print("✅ VoidAuto Aimbot by MaxGoneBed loaded successfully!")
+print("📍 Target body part: " .. Config.TargetBodyPart)
