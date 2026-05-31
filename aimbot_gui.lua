@@ -16,7 +16,7 @@ local Config = {
     TeamCheck = true,
     WallCheck = true,
     FPSBoost = false,
-    TargetBodyPart = "Head", -- "Head" or "Torso"
+    TargetBodyPart = "Head",
     Dragging = false,
     DragStart = Vector2.new(0, 0),
     Offset = Vector2.new(0, 0)
@@ -25,7 +25,7 @@ local Config = {
 -- Play notification sound
 local function PlayNotification()
     local sound = Instance.new("Sound")
-    sound.SoundId = "rbxassetid://9124144408" -- UI notification sound
+    sound.SoundId = "rbxassetid://9124144408"
     sound.Volume = 0.5
     sound.Parent = workspace
     game:GetService("Debris"):AddItem(sound, 1)
@@ -120,6 +120,11 @@ scrollFrame.ScrollBarThickness = 5
 scrollFrame.ScrollBarImageColor3 = Color3.fromRGB(100, 100, 120)
 scrollFrame.Parent = contentFrame
 
+-- Create UIListLayout for scrollFrame
+local mainLayout = Instance.new("UIListLayout")
+mainLayout.Padding = UDim.new(0, 10)
+mainLayout.Parent = scrollFrame
+
 -- Create toggle button
 local function CreateToggle(name, defaultState, callback)
     local toggleContainer = Instance.new("Frame")
@@ -127,10 +132,6 @@ local function CreateToggle(name, defaultState, callback)
     toggleContainer.Size = UDim2.new(1, 0, 0, 50)
     toggleContainer.BackgroundTransparency = 1
     toggleContainer.Parent = scrollFrame
-    
-    local layout = Instance.new("UIListLayout")
-    layout.Padding = UDim.new(0, 10)
-    layout.Parent = scrollFrame
     
     local label = Instance.new("TextLabel")
     label.Name = "Label"
@@ -345,10 +346,7 @@ local function CreateButtonGroup(name, options, defaultValue, callback)
         
         button.MouseButton1Click:Connect(function()
             if currentValue ~= option then
-                -- Reset previous button
                 buttons[currentValue].BackgroundColor3 = Color3.fromRGB(60, 60, 80)
-                
-                -- Highlight new button
                 button.BackgroundColor3 = Color3.fromRGB(100, 200, 100)
                 currentValue = option
                 callback(option)
@@ -380,11 +378,11 @@ end)
 local _, getFPSBoost = CreateToggle("⚙️ FPS Boost", false, function(state)
     Config.FPSBoost = state
     if state then
-        -- Remove all textures for FPS boost
-        for _, obj in pairs(workspace:FindPartBrickSequence()) do
+        for _, obj in pairs(workspace:FindDescendants()) do
             if obj:IsA("BasePart") then
-                obj.Material = Enum.Material.Neon
-                obj.TextureID = ""
+                pcall(function()
+                    obj.Material = Enum.Material.Neon
+                end)
             end
         end
     end
@@ -399,17 +397,6 @@ end)
 CreateSlider("FOV Range", 10, 500, 100, function(value)
     Config.FOV = value
 end)
-
--- FOV Circle
-local fovCircle = Instance.new("Circle")
-if fovCircle.Parent == nil then
-    fovCircle.Radius = Config.FOV
-    fovCircle.Thickness = 2
-    fovCircle.NumSides = 50
-    fovCircle.Color = Color3.fromRGB(100, 200, 100)
-    fovCircle.Transparency = 0.5
-    fovCircle.Filled = false
-end
 
 -- Dragging functionality
 titleBar.InputBegan:Connect(function(input, gameProcessed)
@@ -450,14 +437,6 @@ RunService.RenderStepped:Connect(function()
         local delta = mouse.Position - Config.DragStart
         mainFrame.Position = Config.Offset + UDim2.new(0, delta.X, 0, delta.Y)
     end
-    
-    -- Update FOV circle
-    if getShowFOV() then
-        fovCircle.Radius = Config.FOV
-        fovCircle.Visible = true
-    else
-        fovCircle.Visible = false
-    end
 end)
 
 -- Aimbot logic
@@ -469,18 +448,14 @@ local function GetClosestTarget()
         if player == LocalPlayer then continue end
         if not player.Character then continue end
         
-        -- Get target body part
         local targetPart = player.Character:FindFirstChild(Config.TargetBodyPart)
         if not targetPart then continue end
         
-        -- Team check
         if Config.TeamCheck and player.Team == LocalPlayer.Team then continue end
         
-        -- Calculate distance to screen center
         local screenPos = Camera:WorldToScreenPoint(targetPart.Position)
         local distance = (Vector2.new(screenPos.X, screenPos.Y) - Vector2.new(Camera.ViewportSize.X / 2, Camera.ViewportSize.Y / 2)).Magnitude
         
-        -- Wall check (raycasting)
         if Config.WallCheck then
             local rayOrigin = Camera.CFrame.Position
             local rayDirection = (targetPart.Position - rayOrigin).Unit * 1000
@@ -518,6 +493,5 @@ end)
 wait(0.5)
 PlayNotification()
 
--- Made by MaxGoneBed
 print("✅ VoidAuto Aimbot by MaxGoneBed loaded successfully!")
 print("📍 Target body part: " .. Config.TargetBodyPart)
